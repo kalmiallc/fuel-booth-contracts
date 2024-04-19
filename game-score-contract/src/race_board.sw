@@ -35,7 +35,6 @@ use std::constants::ZERO_B256;
 use abi_race_board::RaceBoard;
 use data_structures::LiveScore;
 use data_structures::FinishScore;
-use data_structures::RacingDriver;
 
 storage {
     // so we know to what number read for drivers email hash
