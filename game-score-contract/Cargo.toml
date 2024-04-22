@@ -1,9 +1,9 @@
 [package]
 name = "game-score-contract"
-description = "A cargo-generate template for Rust + Sway integration testing."
+description = "Testing the ScoreBoard Sway contract on Fuel chain, with TypeScript"
 version = "0.1.0"
 edition = "2021"
-authors = ["primoz <primoz.hrastar@gmail.com>"]
+authors = ["Primož Hrastar <primoz.hrastar@kalmia.si>"]
 license = "Apache-2.0"
 
 [dev-dependencies]
@@ -14,3 +14,6 @@ tokio = { version = "1.12", features = ["rt", "macros"] }
 harness = true
 name = "integration_tests"
 path = "tests/harness.rs"
+
+[dependencies]
+ascii = "=1.1.0"

@@ -1,12 +1,14 @@
 library;
 
+use std::string::String;
+
 abi RaceBoard {
 
     #[storage(read)]
     fn drivers() -> Option<StorageMap<u64, b256>>;
 
     #[storage(write)]
-    fn register_driver(_email: str) -> u64;
+    fn register_driver(_email: String) -> u64;
 
     #[storage(write)]
     fn to_live_score(

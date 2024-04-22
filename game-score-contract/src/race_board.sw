@@ -29,6 +29,8 @@ mod abi_race_board;
 mod data_structures;
 
 use std::hash::*;
+use std::string::String;
+use std::storage::StorageMap; // https://fuellabs.github.io/sway/v0.19.0/common-collections/storage_map.html
 use events::LiveScoreEvent;
 use events::FinishScoreEvent;
 use std::constants::ZERO_B256;
@@ -54,7 +56,7 @@ storage {
 impl RaceBoard for Contract {
     
     #[storage(write)]
-    fn register_driver(_email: str) -> u64 {
+    fn register_driver(_email: String) -> u64 {
 
         let hash_mail: b256 = sha256(_email);
 
@@ -159,7 +161,7 @@ impl RaceBoard for Contract {
 
     #[storage(read)]
     fn drivers() -> Option<StorageMap<u64, b256>> {
-        storage.drivers.try_read()
+        storage.drivers.try_read().unwrap()
     }
 
 /*

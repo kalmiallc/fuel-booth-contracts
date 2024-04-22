@@ -141,6 +141,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eab1c04a571841102f5345a8fc0f6bb3d31c315dec879b5c6e42e40ce7ffa34e"
 
 [[package]]
+name = "ascii"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d92bec98840b8f03a5ff5413de5293bfcd8bf96467cf5452609f939ec6f5de16"
+
+[[package]]
 name = "async-graphql"
 version = "4.0.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -567,7 +573,7 @@ version = "3.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "da3da6baa321ec19e1cc41d31bf599f00c783d0517095cdaf0332e3fe8d20680"
 dependencies = [
- "ascii",
+ "ascii 0.9.3",
  "byteorder",
  "either",
  "memchr",
@@ -1771,6 +1777,7 @@ dependencies = [
 name = "game-score-contract"
 version = "0.1.0"
 dependencies = [
+ "ascii 1.1.0",
  "fuels",
  "tokio",
 ]

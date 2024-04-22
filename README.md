@@ -23,7 +23,7 @@ the contract to store and give data about the scores users have accomplished in 
 - first time ever? please install ```cargo install cargo-generate``` (a tool for testing)
 - no test file in project? make one with: ```cargo generate --init fuellabs/sway templates/sway-test-rs --name game-score-contracts```
 - write your tests in **/tests/harness.rs**
-- **```cargo test```** to run test script(s) (make sure to use ```forc build``` to have latest changes from smart contract before running tests)
+- **```cargo test```** to run test script(s) (make sure to use ```forc build``` to have latest changes from smart contract before running tests). For displaying ```println!("{:?}", obj);``` run: **```cargo test -- --nocapture```**
 
 #### deploy:
 - first get some free gas money [Faucet test tokens](https://faucet-beta-5.fuel.network/)
