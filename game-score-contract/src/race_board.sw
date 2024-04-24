@@ -24,156 +24,82 @@ contract;
 *
 * */
 
-mod events;
-mod abi_race_board;
-mod data_structures;
 
-use std::hash::*;
-use std::string::String;
-use std::storage::StorageMap; // https://fuellabs.github.io/sway/v0.19.0/common-collections/storage_map.html
-use events::LiveScoreEvent;
-use events::FinishScoreEvent;
-use std::constants::ZERO_B256;
-use abi_race_board::RaceBoard;
-use data_structures::LiveScore;
-use data_structures::FinishScore;
+
+
+mod errors;
+mod player;
+mod events;
+//mod abi_race_board;//use abi_race_board::RaceBoard;
+
+
+use errors::{SetError, GetError};
+use player::PlayerProfile;
+use events::{LiveScoreEvent, FinishScoreEvent};
+use std::{call_frames::contract_id, hash::*,storage::storage_string::*, string::String};
+
+abi RaceBoard {
+    #[storage(read)]fn players_count() -> u64;
+    #[storage(read)]fn player_email(seq_id: u64) -> String;
+    #[storage(read)]fn player_email_exists(email: String) -> bool;
+    #[storage(read)]fn id_player_profile(seq_id: u64) -> Option<PlayerProfile>;
+    #[storage(read)]fn email_player_profile(email: String) -> Option<PlayerProfile>;
+    #[storage(write)]fn register_email_player(email: String) -> PlayerProfile;
+    
+}
 
 storage {
-    // so we know to what number read for drivers email hash
-    drivers_count: u64 = 0, 
-
-    // sequential ID => hash(email)
-    drivers: StorageMap<u64, b256> = StorageMap {},
-
-    // hash(email) => amount races completed/finished 
-    finish_races_counter: StorageMap<b256, u64> = StorageMap {},
-
-    live_scores: StorageMap<(b256, u64), LiveScore> = StorageMap {}, 
-
-    finish_scores: StorageMap<(b256, u64), FinishScore> = StorageMap {},
+    players_count: u64 = 0, // number
+    players_emails : StorageMap<u64, StorageString> = StorageMap {}, // n => "user@mail.io"
+    players_profiles: StorageMap<b256, PlayerProfile> = StorageMap {}, // hash(email)=> Struct
 }
+
+
 
 impl RaceBoard for Contract {
     
-    #[storage(write)]
-    fn register_driver(_email: String) -> u64 {
+    #[storage(read)]fn players_count() -> u64 {   storage.players_count.try_read().unwrap()   }
 
-        let hash_mail: b256 = sha256(_email);
+    #[storage(read)]fn player_email(seq_id: u64) -> String  {   storage.players_emails.get(seq_id).read_slice().unwrap()   }
 
-        // first time email
-        if storage.finish_races_counter.get(hash_mail).try_read().is_none() {
+    #[storage(read)]fn player_email_exists(email: String) -> bool  {   storage.players_profiles.get(sha256(email)).try_read().is_none()   }
 
-            // save new driver: sequential ID => hash(email)
-            storage.drivers.insert(storage.drivers_count.try_read().unwrap(), hash_mail);
-
-            // save new driver races counter, set to 0 finished races
-            storage.finish_races_counter.insert(hash_mail, 0);
-
-            // increase sequential ID
-            storage.drivers_count.write(storage.drivers_count.try_read().unwrap() + 1);
-
-            // return first time on the track
-            0
-        } else {
-
-            // return current counter of races for driver
-            storage.finish_races_counter.get(hash_mail).try_read().unwrap()
-        }
+    #[storage(read)]fn id_player_profile(seq_id: u64) -> Option<PlayerProfile> 
+    {
+        require(seq_id <= storage.players_count.try_read().unwrap(), GetError::IdIsOverMax);
+        let email: String = storage.players_emails.get(seq_id).read_slice().unwrap();
+        storage.players_profiles.get(sha256(email)).try_read() 
     }
 
+    #[storage(read)]fn email_player_profile(email: String) -> Option<PlayerProfile>{   storage.players_profiles.get(sha256(email)).try_read() }
 
-    #[storage(write)]
-    fn to_finish_score(
-        _email: str,
-        _damage: u64,
-        _top_speed: u64,
-        _result_time: u64
-    ) {
-        let hash_mail: b256 = sha256(_email);
+    #[storage(write)]fn register_email_player(email: String) -> PlayerProfile
+    {
+        let current_seq_id: u64 = storage.players_count.try_read().unwrap();
+        let email_hash: b256 = sha256(email);
 
-        // TODO change if user registered and from that assume existence of email hash in finish_races_counter
-        // TODO modifier if user registered 
-        // counter of races for this driver
-        let mut this_driver_race_count: u64 =  1;
-        if !storage.finish_races_counter.get(hash_mail).try_read().is_none() {
-            this_driver_race_count = storage.finish_races_counter.get(hash_mail).try_read().unwrap() + 1;
-        }
-        storage.finish_races_counter.insert(hash_mail, this_driver_race_count);
+        require(storage.players_profiles.get(email_hash).try_read().is_none(), SetError::ValueAlreadySet);
 
-        // save racing result to storage
-        storage.finish_scores.insert(
-            (hash_mail, this_driver_race_count),
-            FinishScore {
-                mail: hash_mail,
-                damage: _damage, 
-                top_speed: _top_speed,
-                race_number: this_driver_race_count,
-                result_time: _result_time
-            }
-        );
-
-        // trigger event
-        log(FinishScoreEvent {
-            email_hash: hash_mail,
-            damage: _damage,
-            top_speed: _top_speed,
-            race_number: this_driver_race_count,
-            result_time: _result_time
-        });
-    }
+        // NEW PLAYER
+        let new_player_profile = PlayerProfile::new(current_seq_id);
+        storage.players_profiles.insert(email_hash, new_player_profile);
 
 
-    #[storage(write)]
-    fn to_live_score(
-        _email: str, 
-        _speed: u64, 
-        _damage: u64,
-        _distance: u64,
-        _current_lap: u64, 
-        _seconds_racing: u64 
-    ) {
-        let hash_mail: b256 = sha256(_email);
+        // ID => EMAIL 
+        // Setup and initialize storage for the StorageString.
+        let new_slot: Result<StorageString, StorageMapError<StorageString>> = storage.players_emails.try_insert(current_seq_id, StorageString {});
+        storage.players_emails.get(current_seq_id).write_slice(email);  //let email_string = String::from_ascii_str(email:str);
 
-        // TODO uid for current race, wait for now if reading events is enough for timetable
-        let uniq_score_id: u64 = 111;  
+        // COUNT++
+        storage.players_count.write(current_seq_id + 1);
 
-        storage.live_scores.insert(
-            (hash_mail, uniq_score_id),
-            LiveScore {
-                speed: _speed,
-                damage: _damage, 
-                distance: _distance,
-                current_lap: _current_lap,
-                seconds_racing: _seconds_racing
-            }
-        );
-
-        // trigger event
-        log(LiveScoreEvent {
-            email_hash: hash_mail,
-            speed: _speed,
-            damage: _damage, 
-            distance: _distance,
-            current_lap: _current_lap,
-            seconds_racing: _seconds_racing
-        });
-    }
-
-    #[storage(read)]
-    fn drivers() -> Option<StorageMap<u64, b256>> {
-        storage.drivers.try_read().unwrap()
-    }
-
-/*
-    #[storage(read)]
-    fn driver_races(_email: str) -> struct {
-        let hash_mail: b256 = sha256(_email);
-
-        let driver_races_count: u64 = storage.finish_races_counter.get(hash_mail).try_read().unwrap();
         
-
-        storage.finish_scores.get(hash_mail).try_read()
+        new_player_profile
     }
-*/
+
+    
+
+
 }
 
+  
