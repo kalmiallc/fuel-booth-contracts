@@ -54,3 +54,4 @@ Thumbs.db
 
 *.pdf
 *.PDF
+!Data_structure_RaceBoard.drawio.pdf
