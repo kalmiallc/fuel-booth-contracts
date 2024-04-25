@@ -5,8 +5,6 @@ pub struct PlayerProfile{
     avg_time: u64,         // in seconds
     player_id: u64,        // &players_emails[id]
     total_races: u64,
-    //ime: str[150],
-    //user_name: Vec<String>,
 }
 
 impl PlayerProfile {
