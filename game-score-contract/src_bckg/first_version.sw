@@ -225,3 +225,41 @@ impl RaceBoard for Contract {
         //let stored_email: String = storage_key.read_slice().unwrap();
         //stored_email
     //}
+
+
+    #[storage(read)]
+    fn all_usernames() -> Vec<(u64, String)>
+    {   // list all players: ID-username
+        let mut vector_profiles: Vec<(u64, String)> = Vec::new();
+
+        let mut cc: u64 = 0;
+        let range: u64 = storage.players_count.try_read().unwrap();
+        
+        while cc < range {
+            let username: String = storage.players_usernames.get(cc).read_slice().unwrap();
+            //let profile: PlayerProfile = storage.players_profiles.get(sha256(username)).try_read().unwrap();
+            vector_profiles.push((cc, username));
+            cc = cc + 1;
+        }
+        vector_profiles
+    }
+
+
+    // Some(InvalidType("type Vector(Tuple([String, Struct { fields: [U64, U64, U64, U64, B256], generics: [] }])) 
+    // is not decodable: nested heap types are currently not supported except in Enums.")) 
+    #[storage(read)]
+    fn all_usernames_profiles() -> Vec<(String, PlayerProfile)>
+    {   // list all players: username-PlayerProfile
+        let mut vector_profiles: Vec<(String, PlayerProfile)> = Vec::new();
+
+        let mut cc: u64 = 0;
+        let range: u64 = storage.players_count.try_read().unwrap();
+        
+        while cc < range {
+            let username: String = storage.players_usernames.get(cc).read_slice().unwrap();
+            let profile: PlayerProfile = storage.players_profiles.get(sha256(username)).try_read().unwrap();
+            vector_profiles.push((username, profile));
+            cc = cc + 1;
+        }
+        vector_profiles
+    }

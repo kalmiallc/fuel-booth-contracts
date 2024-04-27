@@ -3,6 +3,7 @@
   
 the contract to store and give data about the scores users have accomplished in the [game repository](https://github.com/BKcore/HexGL/tree/master/textures/ships/feisar)
 
+[sway book]: https://fuellabs.github.io/sway/v0.56.0/book/
 
 #### Fuel Documentation
 - [How to: Make local Fuel dev enviroment](https://docs.fuel.network/docs/intro/quickstart-contract/)
