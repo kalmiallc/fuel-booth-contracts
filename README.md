@@ -5,6 +5,13 @@ the contract to store and give data about the scores users have accomplished in 
 
 [sway book]: https://fuellabs.github.io/sway/v0.56.0/book/
 
+
+### Game Version:
+change in **Forc.toml** under ```entry```  
+
+v1: Current HighScore Only:  high_score.sw & a_player.sw  
+v2: Full all games for user: race_board.sw & ...  
+
 #### Fuel Documentation
 - [How to: Make local Fuel dev enviroment](https://docs.fuel.network/docs/intro/quickstart-contract/)
 - [Use sway programming language](https://docs.fuel.network/docs/sway/)

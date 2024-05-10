@@ -57,7 +57,16 @@ async fn new_player_with_email(instance: &RaceBoard<WalletUnlocked>, _username: 
         Ok(_) => {
             println!("{} {:?} \n", "New username & Email Player Created:", player_created.unwrap().value);
         }
-        Err(_) => println!("{:?}", player_created),
+        Err(_) => println!("error New username & Email Player Created {:?}", player_created),
+    }
+}
+async fn assign_email_to_username(instance: &RaceBoard<WalletUnlocked>, _username: String, _email: String) {
+    let player_created = instance.methods().assign_email_to_username(_username, _email).call().await;
+    match player_created {
+        Ok(_) => {
+            println!("{} {:?} \n", "New Assign Email Player Created:", player_created.unwrap().value);
+        }
+        Err(_) => println!("error New Assign & Email Player Created {:?}", player_created),
     }
 }
 
@@ -71,6 +80,21 @@ async fn submit_player_score(
     match score_created {
         Ok(_) => {
             println!("{} {:?} \n", "New  Score Created:", score_created.unwrap().value);
+        }
+        Err(_) => println!("Error Captured on Score create {:?}", score_created),
+    }
+}
+async fn submit_player_scores(
+    instance: &RaceBoard<WalletUnlocked>, 
+    _username: String,
+    _damage: u64,
+    _time: u64,
+    _repeat:u64
+) {
+    let score_created = instance.methods().submit_scores(_username, _damage, _time, _repeat).call().await;
+    match score_created {
+        Ok(_) => {
+            //println!("{} {} {:?} \n", _repeat,"New  Score Created:", score_created.unwrap().value);
         }
         Err(_) => println!("Error Captured on Score create {:?}", score_created),
     }
@@ -177,10 +201,19 @@ async fn all_player_scores(instance: &RaceBoard<WalletUnlocked>, username: Strin
     }
 }
 
+
+async fn all_player_scores_count(instance: &RaceBoard<WalletUnlocked>, username: String) {
+    let response = instance.methods().all_player_scores(username).call().await;
+    match response {
+        Ok(_) => { println!("{}  => {:?} \n", "Count All Player Scores", response.unwrap().value.len()); }
+        Err(_) => { println!("Captured Error All Player Scores {:?} \n", response.err()); }
+    }
+}
+
 async fn submit_track_progress(instance: &RaceBoard<WalletUnlocked>, username: String) {
     let response = instance.methods().submit_track_progress(username, 1, 2, 3, 4, 5).call().await;
     match response {
-        Ok(_) => { println!("{}  => {:?} \n", "Track Score Submitted Event", response.unwrap().value); }
+        Ok(_) => { /*println!("{}  => {:?} \n", "Track Score Submitted Event", response.unwrap().value);*/ }
         Err(_) => { println!("Captured Error Track Score Submitted Event {:?} \n", response.err()); }
     }
 }
@@ -256,14 +289,25 @@ async fn can_register_driver_with_fake_username() {
     player_profile_by_id(&instance, 2).await; 
 
     submit_player_score(&instance, usernames[1].to_string(), 4, 120).await;
+    submit_player_scores(&instance, usernames[2].to_string(), 4, 120, 1995).await;
     player_id_score(&instance, 1, 1).await; 
 
-    new_player_with_email(&instance, usernames[2].to_string(), "email@mail.com".to_string()).await; // Value already set
+    println!("UsernameExists");
+    println!("UsernameExists");
+    
+    new_player_with_email(&instance, usernames[2].to_string(), "email@mail.com".to_string()).await; // UsernameExists
+    println!("assign email to username");
+    println!("assign email to username");
+    assign_email_to_username(&instance, usernames[3].to_string(), "trojka@mail.com".to_string()).await; 
+    println!("New created");
+    println!("New created");
     new_player_with_email(&instance, "mojUserName".to_string(), "email@mail.com".to_string()).await;
     all_players(&instance).await; 
     //all_usernames(&instance).await; 
     //all_usernames_profiles(&instance).await; 
-    all_player_scores(&instance, usernames[2].to_string()).await; 
+    //all_player_scores(&instance, usernames[2].to_string()).await; 
+    all_player_scores(&instance, usernames[1].to_string()).await; 
+    all_player_scores_count(&instance, usernames[1].to_string()).await; 
 
     let mut c: u64 = 0;
     while c <= 100{
@@ -271,6 +315,8 @@ async fn can_register_driver_with_fake_username() {
         c = c+1;
     }
 
+    
+    all_player_scores_count(&instance, usernames[2].to_string()).await; 
         
 
     // tokio::time::sleep(period * 2).await;

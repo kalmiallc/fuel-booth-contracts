@@ -48,13 +48,24 @@ abi RaceBoard {
     #[storage(read)]fn player_last_race_score(username: String) -> GameScore;
     #[storage(read)]fn player_id_race_score(seq_id: u64, race_number: u64) -> GameScore;
     #[storage(read)]fn all_player_scores(username: String) -> Vec<GameScore>;
+    #[storage(write)]
+    fn assign_email_to_username(username: String, email: String) -> PlayerProfile;
     #[storage(write)]fn register_username_email_player(username: String, email: String) -> PlayerProfile;
     fn submit_track_progress(username: String, speed: u64, damage: u64, distance: u64, lap: u64, seconds_racing: u64);
+    #[storage(write)]
+    fn submit_scores(
+        _username: String, 
+        _vehicle_damage: u64, 
+        _finish_time_seconds: u64,
+        _timesScored: u64
+    );
+    #[fallback] fn fallback();
 }
 
 storage {
     players_count: u64 = 0, // number n
     players_usernames : StorageMap<u64, StorageString> = StorageMap {}, // n => "username"
+    username_email_hash_bool :StorageMap<b256, bool> = StorageMap {}, // hash(username+email)=> bool
     players_profiles: StorageMap<b256, PlayerProfile> = StorageMap {}, // hash(username)=> Struct
     players_game_scores: StorageMap<(u64, u64), GameScore> = StorageMap {}, // (player_ID, player_race_count) => Struct
 }
@@ -63,23 +74,28 @@ storage {
 
 impl RaceBoard for Contract {
     
-    #[storage(read)]fn players_count() -> u64 
+    #[storage(read)]
+    fn players_count() -> u64 
     {   storage.players_count.try_read().unwrap()   }
 
-    #[storage(read)]fn player_username(seq_id: u64) -> String  
+    #[storage(read)]
+    fn player_username(seq_id: u64) -> String  
     {   storage.players_usernames.get(seq_id).read_slice().unwrap()   }
 
-    #[storage(read)]fn player_username_exists(username: String) -> bool  
+    #[storage(read)]
+    fn player_username_exists(username: String) -> bool  
     {   !storage.players_profiles.get(sha256(username)).try_read().is_none()   }
 
-    #[storage(read)]fn id_player_profile(seq_id: u64) -> Option<PlayerProfile> 
+    #[storage(read)]
+    fn id_player_profile(seq_id: u64) -> Option<PlayerProfile> 
     {
         require(seq_id <= storage.players_count.try_read().unwrap(), GetError::IdIsOverMax);
         let username: String = storage.players_usernames.get(seq_id).read_slice().unwrap();
         storage.players_profiles.get(sha256(username)).try_read() 
     }
 
-    #[storage(read)]fn username_player_profile(username: String) -> Option<PlayerProfile>
+    #[storage(read)]
+    fn username_player_profile(username: String) -> Option<PlayerProfile>
     {   storage.players_profiles.get(sha256(username)).try_read() }
 
     #[storage(write)]
@@ -109,18 +125,38 @@ impl RaceBoard for Contract {
     }
 
     #[storage(write)]
+    fn assign_email_to_username(username: String, email: String) -> PlayerProfile
+    {
+        let username_hash: b256 = sha256(username);
+        
+        require(!storage.players_profiles.get(username_hash).try_read().is_none(), GetError::UsernameDoesNotExists);
+
+        let mut player_profile: PlayerProfile = storage.players_profiles.get(sha256(username)).try_read().unwrap();
+        player_profile.set_username_email_hash(username, email);
+        storage.username_email_hash_bool.insert(player_profile.username_and_email_hash, true);
+
+        storage.players_profiles.insert(username_hash, player_profile);
+        player_profile
+    }
+
+
+    #[storage(write)]
     fn register_username_email_player(username: String, email: String) -> PlayerProfile
     {
         let username_hash: b256 = sha256(username);
         
         require(storage.players_profiles.get(username_hash).try_read().is_none(), SetError::UsernameExists);
         
+        
         let current_seq_id: u64 = storage.players_count.try_read().unwrap();
 
         // NEW PLAYER
         let new_player_profile = PlayerProfile::new(current_seq_id, username, email);
-        storage.players_profiles.insert(username_hash, new_player_profile);
+        // CHECK USER+EMAIL
+        require(storage.username_email_hash_bool.get(new_player_profile.username_and_email_hash).try_read().is_none(), SetError::UsernameAlreadyUsedEmail);
 
+        storage.players_profiles.insert(username_hash, new_player_profile);
+        storage.username_email_hash_bool.insert(new_player_profile.username_and_email_hash, true);
 
         // ID => username 
         let initialize_new_slot: Result<StorageString, StorageMapError<StorageString>> = storage.players_usernames.try_insert(current_seq_id, StorageString {});
@@ -177,6 +213,10 @@ impl RaceBoard for Contract {
     ) -> GameScore
     {
         let username_hash: b256 = sha256(_username);
+
+        // CHECK IF VALID USERNAME
+        require(!storage.players_profiles.get(username_hash).try_read().is_none(), GetError::UsernameDoesNotExists);
+        
         let mut profile: PlayerProfile = storage.players_profiles.get(username_hash).try_read().unwrap();
 
         // increment and assign to use this race ID for player
@@ -204,6 +244,52 @@ impl RaceBoard for Contract {
         });
 
         new_game_score
+    }
+
+    #[storage(write)]
+    fn submit_scores(
+        _username: String, 
+        _vehicle_damage: u64, 
+        _finish_time_seconds: u64,
+        _timesScored: u64
+    ) 
+    {
+        let username_hash: b256 = sha256(_username);
+
+        // CHECK IF VALID USERNAME
+        require(!storage.players_profiles.get(username_hash).try_read().is_none(), GetError::UsernameDoesNotExists);
+        
+        let mut profile: PlayerProfile = storage.players_profiles.get(username_hash).try_read().unwrap();
+        let mut cc: u64 = 0;
+        
+        
+        while cc < _timesScored {
+            // increment and assign to use this race ID for player
+            let current_race_number = profile.count_finished_race(_finish_time_seconds);
+
+            // create new GameScore
+            let new_game_score = GameScore::new(
+                _vehicle_damage,
+                profile.player_id,
+                _finish_time_seconds,
+                current_race_number
+                );
+
+            // update Player Profile stats
+            storage.players_game_scores.insert((profile.player_id, current_race_number), new_game_score);
+            storage.players_profiles.insert(username_hash, profile);
+
+            // trigger event
+            log(FinishScoreEvent {
+                top_speed: 0,
+                username_hash: username_hash,
+                damage: _vehicle_damage,
+                race_number: current_race_number,
+                result_time: _finish_time_seconds
+            });
+            cc = cc + 1;
+        }
+        
     }
 
     #[storage(read)]fn player_last_race_score(username: String) -> GameScore
@@ -247,7 +333,7 @@ impl RaceBoard for Contract {
         });
 
     }
-    
+    #[fallback] fn fallback() {}
 
 }
 

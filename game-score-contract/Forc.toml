@@ -1,6 +1,6 @@
 [project]
 authors = ["Primož Hrastar <primoz.hrastar@kalmia.si>"]
-entry = "race_board.sw"
+entry = "high_score.sw"
 license = "Apache-2.0"
 name = "game-score-contract"
 description = "OnChain time trial racing score board for a single track"

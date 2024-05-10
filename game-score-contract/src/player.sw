@@ -3,6 +3,7 @@ library;
 use std::string::String;
 use std::hash::*;
 
+
 pub struct PlayerProfile{
     level: u64,
     avg_time: u64,         // in seconds
@@ -24,6 +25,13 @@ impl PlayerProfile {
     
     }
 
+    pub fn set_username_email_hash(ref mut self, username: String, email: String) -> Self{
+        require(self.username_and_email_hash == sha256([username, String::from_ascii_str("")]), {});
+        self.username_and_email_hash = sha256([username, email]);
+        self
+    }
+        
+      
     pub fn count_finished_race(ref mut self, _time: u64) -> u64 {
         
         // calculate avg_time
