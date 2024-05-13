@@ -1,6 +1,6 @@
 [project]
 authors = ["Kalmia"]
-entry = "high_score.sw"
+entry = "race_board.sw"
 license = "Apache-2.0"
 name = "game-score-contract"
 description = "OnChain time trial racing score board for a single track"

@@ -13,7 +13,7 @@ tokio = { version = "1.12", features = ["rt", "macros"] }
 [[test]]
 harness = true
 name = "integration_tests"
-path = "tests/harnessHighScore.rs"
+path = "tests/harnessTest.rs"
 
 [dependencies]
 ascii = "=1.1.0"
