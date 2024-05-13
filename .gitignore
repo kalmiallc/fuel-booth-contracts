@@ -55,3 +55,6 @@ Thumbs.db
 *.pdf
 *.PDF
 !Data_structure_RaceBoard.drawio.pdf
+ech.bin
+/game-score-contract/out/*
+/game-score-contract/out

@@ -1,7 +1,8 @@
 use fuels::{prelude::*, types::ContractId};
+use crypto_hash::{hex_digest, Algorithm};
+use std::convert::TryInto;
 //use tokio::{sync::mpsc::Receiver, task::JoinHandle, time::sleep};
 //use core::time::Duration;
-
 abigen!(Contract(
     name = "HighScore",
     abi = "out/debug/game-score-contract-abi.json"
@@ -40,7 +41,21 @@ async fn get_contract_instance() -> (HighScore<WalletUnlocked>, ContractId) {
 
 
 async fn new_player(instance: &HighScore<WalletUnlocked>, _username: String, _email: String) {
-    let player_created = instance.methods().new_player(_username, _email).call().await;
+    let combined_str = format!("{}{}", _username, _email);
+
+    // Hash the concatenated string using SHA256
+    let hash = hex_digest(Algorithm::SHA256, combined_str.as_bytes());
+
+    // Convert the hash from hex string to bytes
+    let hash_bytes = hex::decode(hash).expect("Failed to decode hash hex string");
+
+    // Take the first 32 bytes (SHA256 produces a 32-byte hash)
+    let hash_bytes = &hash_bytes[..32];
+
+    // Convert bytes to u256
+    let mut b256: [u8; 32] = [0; 32];
+    b256.copy_from_slice(&hash_bytes);
+    let player_created = instance.methods().new_player(digest(_username, b256)).call().await;
     match player_created {
         Ok(_) => {
             println!("{} {:?} \n", "New username & Email Player Created:", player_created.unwrap().value);
@@ -98,6 +113,10 @@ async fn high_score_register_and_score() {
 
     // Example of submitting a score for a specific player
     submit_player_score(&instance, "2username.si".to_string(), 22, 156).await;
+    submit_player_score(&instance, "2username.si".to_string(), 22, 106).await;
+    submit_player_score(&instance, "2username.si".to_string(), 22, 1566).await;
+    submit_player_score(&instance, "2username.si".to_string(), 22, 16).await;
+    all_players(&instance).await;
 
     // Further tests and assertions can be added here following the same pattern
 }

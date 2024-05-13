@@ -7,7 +7,7 @@ pub struct FinishScoreEvent {
     damage: u64,
     top_speed: u64,
     race_number: u64,
-    result_time: u64, // seconds
+    result_time: u64, // seconds @TODO: - rename to ‘result_time_in_seconds‘
 }
 
 pub struct LiveScoreEvent {
