@@ -51,6 +51,8 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+*.vscode
+/.vscode
 
 *.pdf
 *.PDF
