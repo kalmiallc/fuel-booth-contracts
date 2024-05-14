@@ -18,3 +18,4 @@ path = "tests/harnessTest.rs"
 [dependencies]
 ascii = "=1.1.0"
 crypto-hash = "0.3.4"
+sha2 = "0.9.5"

@@ -1,51 +1,43 @@
 library;
-
-use std::string::String;
-use std::hash::*;
-
+use std::{
+    hash::*, 
+    logging::log,
+    string::String,
+    storage::storage_vec::*,
+    storage::storage_string::*, 
+};
+pub struct Score{
+    time: u64,
+    speed: u64,
+    status: u64,
+    damage: u64,
+    distance: u64,
+}
 
 pub struct PlayerProfile{
-    level: u64,
-    avg_time: u64,         // in seconds
-    player_id: u64,        // &players_usernames[id]
-    total_races: u64,
-    username_and_email_hash: b256,    
+    high_score: u64,
+    username_hash: b256,  // for backtrace access   
+    usernames_vector_index: u64, // storage.usernames[index]
+    username_and_email_hash: b256, // checking prevents duplicates
+    has_email_set: bool, 
+    
 }
 
 impl PlayerProfile {
 
-    pub fn new(p_id: u64, username: String, email: String) -> Self {
+    pub fn new(
+        vector_index: u64, 
+        username_hash: b256, 
+        username_mail_hash: b256)
+    -> Self 
+    {   
         Self { 
-            level: 1, 
-            player_id: p_id, 
-            avg_time: 0, 
-            total_races: 0, 
-            username_and_email_hash: sha256([username, email]),
-        }
-    
+            high_score: 0,
+            has_email_set: true,
+            username_hash: username_hash,
+            usernames_vector_index: vector_index,
+            username_and_email_hash: username_mail_hash
+            }
     }
 
-    pub fn set_username_email_hash(ref mut self, username: String, email: String) -> Self{
-        require(self.username_and_email_hash == sha256([username, String::from_ascii_str("")]), {});
-        self.username_and_email_hash = sha256([username, email]);
-        self
-    }
-        
-      
-    pub fn count_finished_race(ref mut self, _time: u64) -> u64 {
-        
-        // calculate avg_time
-        let sum_all_times: u64 = (self.avg_time * self.total_races) + _time;
-
-        self.total_races += 1;
-        self.avg_time = sum_all_times / self.total_races;
-
-        // award level
-        if self.total_races % 3 == 0 
-        { 
-            self.level += 1;
-        }
-
-        self.total_races
-    }
 }
