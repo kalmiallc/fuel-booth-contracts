@@ -9,5 +9,5 @@ pub enum SetError {
 }
 pub enum GetError {
     UsernameDoesNotExists: (),
-    IdIsOverMax: (),
+    IndexIsOverMax: (),
 }

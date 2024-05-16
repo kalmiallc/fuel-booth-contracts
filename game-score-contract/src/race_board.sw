@@ -37,12 +37,13 @@ pub struct FinishScoreEvent {
 
 
 abi RaceBoard {
+    #[storage(read)] fn total_players() -> u64;
     #[storage(read)] fn players() -> Vec<PlayerProfile>;
     #[storage(read)] fn username(vec_index: u64) -> String;
     #[storage(read)] fn scores(username_hash: b256) -> Vec<Score>;
     #[storage(read)] fn player(username_hash: b256) -> Option<PlayerProfile>;
-    #[storage(read, write)] fn register(username: String, username_hash: b256, username_email_hash: b256) -> PlayerProfile;
     #[storage(write)] fn submit_score(username_hash: b256, distance: u64, damage: u64, time: u64, speed: u64, status: u64);
+    #[storage(read, write)] fn register(username: String, username_hash: b256, username_email_hash: b256) -> PlayerProfile;
 }
 
 storage {
@@ -69,6 +70,9 @@ impl RaceBoard for Contract {
         vector_profiles
     }
     
+    #[storage(read)] 
+    fn total_players() -> u64 {storage.usernames.len()}
+
     #[storage(read)] 
     fn scores(username_hash: b256) -> Vec<Score>
     {
@@ -98,6 +102,7 @@ impl RaceBoard for Contract {
     #[storage(read)] 
     fn username(vector_index: u64) -> String
     {
+        require(storage.usernames.len() > vector_index, GetError::IndexIsOverMax);
         storage.usernames.get(vector_index).unwrap().read_slice().unwrap()
     }
 
