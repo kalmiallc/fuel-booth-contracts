@@ -1,0 +1,57 @@
+running 1 test
+usernames_length  0 
+
+usernames_length  2 
+
+usernames_length  3 
+
+get_a_player player jure Some(PlayerProfile { high_score: 0, username_hash: Bits256([254, 127, 99, 238, 103, 183, 117, 112, 27, 27, 92, 86, 51, 85, 129, 235, 165, 205, 53, 56, 234, 247, 116, 135, 135, 39, 35, 84, 166, 132, 242, 240]), usernames_vector_index: 2, username_and_email_hash: Bits256([93, 156, 40, 204, 57, 57, 131, 226, 140, 77, 242, 128, 21, 53, 123, 182, 143, 131, 44, 245, 84, 224, 90, 79, 153, 98, 230, 137, 190, 144, 124, 185]), has_email_set: true }) 
+
+player username vector_index: 2 "jure" 
+
+usernames_length  3 
+
+score_created: ()
+score_created: ()
+score_created: ()
+get_a_player player tine Some(PlayerProfile { high_score: 0, username_hash: Bits256([235, 142, 115, 154, 10, 114, 234, 209, 74, 194, 191, 176, 29, 200, 192, 200, 38, 26, 212, 0, 211, 216, 191, 105, 197, 223, 87, 177, 112, 201, 121, 103]), usernames_vector_index: 3, username_and_email_hash: Bits256([83, 178, 162, 104, 232, 220, 251, 252, 94, 251, 103, 204, 73, 131, 77, 225, 167, 70, 140, 6, 32, 185, 95, 88, 235, 109, 214, 123, 250, 1, 150, 193]), has_email_set: true }) 
+
+get_a_player player jure Some(PlayerProfile { high_score: 1003, username_hash: Bits256([254, 127, 99, 238, 103, 183, 117, 112, 27, 27, 92, 86, 51, 85, 129, 235, 165, 205, 53, 56, 234, 247, 116, 135, 135, 39, 35, 84, 166, 132, 242, 240]), usernames_vector_index: 2, username_and_email_hash: Bits256([93, 156, 40, 204, 57, 57, 131, 226, 140, 77, 242, 128, 21, 53, 123, 182, 143, 131, 44, 245, 84, 224, 90, 79, 153, 98, 230, 137, 190, 144, 124, 185]), has_email_set: true }) 
+
+player username vector_index: 3 "tine" 
+
+player username vector_index: 0 "tine" 
+
+player username vector_index: 1 "tine" 
+
+player username vector_index: 2 "tine" 
+
+Some(RevertTransactionError { reason: "IndexIsOverMax", revert_id: 18446744073709486080, receipts: [Call { id: 0000000000000000000000000000000000000000000000000000000000000000, to: 4e0b46f94443e096ae740bb46e0dc19273fe323b469458861fdb00820094d229, amount: 0, asset_id: 0000000000000000000000000000000000000000000000000000000000000000, gas: 286, param1: 680798678, param2: 4, pc: 11648, is: 11648 }, LogData { id: 4e0b46f94443e096ae740bb46e0dc19273fe323b469458861fdb00820094d229, ra: 0, rb: 3, ptr: 29272, len: 8, digest: cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50, pc: 25524, is: 11648, data: Some(0000000000000001) }, Revert { id: 4e0b46f94443e096ae740bb46e0dc19273fe323b469458861fdb00820094d229, ra: 18446744073709486080, pc: 25532, is: 11648 }, ScriptResult { result: Revert, gas_used: 487 }] }) 
+
+get_a_player player nina Some(PlayerProfile { high_score: 0, username_hash: Bits256([165, 194, 153, 226, 253, 210, 24, 105, 54, 10, 94, 82, 203, 118, 78, 175, 199, 185, 75, 208, 238, 208, 162, 8, 12, 66, 118, 132, 2, 66, 66, 224]), usernames_vector_index: 4, username_and_email_hash: Bits256([218, 95, 165, 233, 48, 13, 244, 253, 230, 222, 9, 173, 199, 187, 74, 63, 173, 83, 108, 150, 199, 222, 209, 232, 246, 228, 67, 8, 175, 95, 133, 59]), has_email_set: true }) 
+
+player username vector_index: 4 "nina" 
+
+player username vector_index: 0 "nina" 
+
+player username vector_index: 1 "nina" 
+
+player username vector_index: 2 "nina" 
+
+player username vector_index: 3 "nina" 
+
+get_players  [
+PlayerProfile { high_score: 0, username_hash: Bits256([165, 194, 153, 226, 253, 210, 24, 105, 54, 10, 94, 82, 203, 118, 78, 175, 199, 185, 75, 208, 238, 208, 162, 8, 12, 66, 118, 132, 2, 66, 66, 224]), usernames_vector_index: 4, username_and_email_hash: Bits256([218, 95, 165, 233, 48, 13, 244, 253, 230, 222, 9, 173, 199, 187, 74, 63, 173, 83, 108, 150, 199, 222, 209, 232, 246, 228, 67, 8, 175, 95, 133, 59]), has_email_set: true }, 
+PlayerProfile { high_score: 0, username_hash: Bits256([0, 0, 0, 0, 0, 0, 0, 165, 194, 153, 226, 253, 210, 24, 105, 54, 10, 94, 82, 203, 118, 78, 175, 199, 185, 75, 208, 238, 208, 162, 8, 12]), usernames_vector_index: 4789160398991581184, username_and_email_hash: Bits256([0, 0, 0, 0, 0, 0, 4, 218, 95, 165, 233, 48, 13, 244, 253, 230, 222, 9, 173, 199, 187, 74, 63, 173, 83, 108, 150, 199, 222, 209, 232, 246]), has_email_set: true }, 
+PlayerProfile { high_score: 4830303425146847488, username_hash: Bits256([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165, 194, 153, 226, 253, 210, 24, 105, 54, 10, 94, 82, 203, 118, 78, 175, 199, 185]), usernames_vector_index: 5463128927839456322, username_and_email_hash: Bits256([118, 132, 2, 66, 66, 224, 0, 0, 0, 0, 0, 0, 0, 4, 218, 95, 165, 233, 48, 13, 244, 253, 230, 222, 9, 173, 199, 187, 74, 63, 173, 83]), has_email_set: true },
+PlayerProfile { high_score: 10864897619192636483, username_hash: Bits256([8, 175, 95, 133, 59, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165, 194, 153, 226, 253, 210, 24, 105, 54, 10, 94]), usernames_vector_index: 5965992211710982475, username_and_email_hash: Bits256([208, 238, 208, 162, 8, 12, 66, 118, 132, 2, 66, 66, 224, 0, 0, 0, 0, 0, 0, 0, 4, 218, 95, 165, 233, 48, 13, 244, 253, 230, 222, 9]), has_email_set: true }, PlayerProfile { high_score: 14392178671543872662, username_hash: Bits256([199, 222, 209, 232, 246, 228, 67, 8, 175, 95, 133, 59, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 165, 194, 153, 226]), usernames_vector_index: 18289707876862287442, username_and_email_hash: Bits256([203, 118, 78, 175, 199, 185, 75, 208, 238, 208, 162, 8, 12, 66, 118, 132, 2, 66, 66, 224, 0, 0, 0, 0, 0, 0, 0, 4, 218, 95, 165, 233]), has_email_set: true }] 
+
+usernames_length  5 
+
+Some(RevertTransactionError { reason: "IndexIsOverMax", revert_id: 18446744073709486080, receipts: [Call { id: 0000000000000000000000000000000000000000000000000000000000000000, to: 4e0b46f94443e096ae740bb46e0dc19273fe323b469458861fdb00820094d229, amount: 0, asset_id: 0000000000000000000000000000000000000000000000000000000000000000, gas: 286, param1: 680798678, param2: 5, pc: 11648, is: 11648 }, LogData { id: 4e0b46f94443e096ae740bb46e0dc19273fe323b469458861fdb00820094d229, ra: 0, rb: 3, ptr: 29272, len: 8, digest: cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50, pc: 25524, is: 11648, data: Some(0000000000000001) }, Revert { id: 4e0b46f94443e096ae740bb46e0dc19273fe323b469458861fdb00820094d229, ra: 18446744073709486080, pc: 25532, is: 11648 }, ScriptResult { result: Revert, gas_used: 487 }] }) 
+
+Some(RevertTransactionError { reason: "IndexIsOverMax", revert_id: 18446744073709486080, receipts: [Call { id: 0000000000000000000000000000000000000000000000000000000000000000, to: 4e0b46f94443e096ae740bb46e0dc19273fe323b469458861fdb00820094d229, amount: 0, asset_id: 0000000000000000000000000000000000000000000000000000000000000000, gas: 286, param1: 680798678, param2: 6, pc: 11648, is: 11648 }, LogData { id: 4e0b46f94443e096ae740bb46e0dc19273fe323b469458861fdb00820094d229, ra: 0, rb: 3, ptr: 29272, len: 8, digest: cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50, pc: 25524, is: 11648, data: Some(0000000000000001) }, Revert { id: 4e0b46f94443e096ae740bb46e0dc19273fe323b469458861fdb00820094d229, ra: 18446744073709486080, pc: 25532, is: 11648 }, ScriptResult { result: Revert, gas_used: 487 }] }) 
+
+test players_can_register ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.72s
