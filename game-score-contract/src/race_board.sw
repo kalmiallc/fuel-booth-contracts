@@ -44,10 +44,13 @@ abi RaceBoard {
     #[storage(read)] fn player(username_hash: b256) -> Option<PlayerProfile>;
     #[storage(write)] fn submit_score(username_hash: b256, distance: u64, damage: u64, time: u64, speed: u64, status: u64);
     #[storage(read, write)] fn register(username: String, username_hash: b256, username_email_hash: b256) -> PlayerProfile;
+    #[storage(read, write)] fn hash_and_register(username: String, username_email_hash: b256) -> PlayerProfile;
+    #[storage(write)]fn hash_and_submit_score(username: String, distance: u64, damage: u64, time: u64, speed: u64, status: u64);
 }
 
 storage {
-    usernames: StorageVec<StorageString> = StorageVec {},
+    counter: u64 = 0, // storage.counter.write(current_user_id + 1);
+    usernames: StorageMap<u64, StorageString> = StorageMap {},
     players: StorageMap<b256, PlayerProfile> = StorageMap {}, // username_hash->Struct 
     player_scores: StorageMap<b256, StorageVec<Score>> = StorageMap {}, // username_hash->Struct 
 }
@@ -61,8 +64,8 @@ impl RaceBoard for Contract {
     {   
         let mut vector_profiles: Vec<PlayerProfile> = Vec::new();
         let mut i = 0;
-        while i < storage.usernames.len() {
-            let user_hash = sha256(storage.usernames.get(i).unwrap().read_slice().unwrap());
+        while i < storage.counter.try_read().unwrap() {
+            let user_hash = sha256(storage.usernames.get(i).read_slice().unwrap());
             let player: PlayerProfile = storage.players.get(user_hash).try_read().unwrap();
             vector_profiles.push(player);
             i += 1;
@@ -71,7 +74,7 @@ impl RaceBoard for Contract {
     }
     
     #[storage(read)] 
-    fn total_players() -> u64 {storage.usernames.len()}
+    fn total_players() -> u64 {storage.counter.try_read().unwrap()}
 
     #[storage(read)] 
     fn scores(username_hash: b256) -> Vec<Score>
@@ -102,8 +105,8 @@ impl RaceBoard for Contract {
     #[storage(read)] 
     fn username(vector_index: u64) -> String
     {
-        require(storage.usernames.len() > vector_index, GetError::IndexIsOverMax);
-        storage.usernames.get(vector_index).unwrap().read_slice().unwrap()
+        require(storage.counter.try_read().unwrap() > vector_index, GetError::IndexIsOverMax);
+        storage.usernames.get(vector_index).read_slice().unwrap()
     }
 
 
@@ -115,16 +118,37 @@ impl RaceBoard for Contract {
             storage.players.get(username_hash).try_read().is_none(),
             SetError::UsernameExists
         );
+        let current_user_id: u64 = storage.counter.try_read().unwrap();
+        let new_player = PlayerProfile::new(current_user_id, username_hash, username_email_hash);
 
-        storage.usernames.push(StorageString {});
-        let vector_id = storage.usernames.len() - 1;
-        storage.usernames.get(vector_id).unwrap().write_slice(username);
-
-        let new_player = PlayerProfile::new(vector_id, username_hash, username_email_hash);
-        
+        let _: Result<StorageString, StorageMapError<StorageString>> = storage.usernames.try_insert(current_user_id, StorageString {});
+        storage.usernames.get(current_user_id).write_slice(username);
         storage.players.insert(username_hash, new_player);
         storage.player_scores.insert(username_hash, StorageVec {});
+        storage.counter.write(current_user_id + 1);
+
+        new_player
+    }
+
+
+    #[storage(read, write)]
+    fn hash_and_register(username: String, username_email_hash: b256) -> PlayerProfile
+    {   
+        let username_hash: b256= sha256(username);
         
+        require(
+            storage.players.get(username_hash).try_read().is_none(),
+            SetError::UsernameExists
+        );
+        let current_user_id: u64 = storage.counter.try_read().unwrap();
+        let new_player = PlayerProfile::new(current_user_id, username_hash, username_email_hash);
+
+        let _: Result<StorageString, StorageMapError<StorageString>> = storage.usernames.try_insert(current_user_id, StorageString {});
+        storage.usernames.get(current_user_id).write_slice(username);
+        storage.players.insert(username_hash, new_player);
+        storage.player_scores.insert(username_hash, StorageVec {});
+        storage.counter.write(current_user_id + 1);
+
         new_player
     }
 
@@ -137,6 +161,35 @@ impl RaceBoard for Contract {
         //     GetError::UsernameDoesNotExists
         // );
         
+        let mut profile = storage.players.get(username_hash).try_read().unwrap();
+
+        let new_score = Score {
+                            time: time,
+                            speed: speed,
+                            status: status,
+                            damage: damage,
+                            distance: distance
+                            };
+        
+        if status == 1{
+            storage.player_scores.get(username_hash).push(new_score);
+
+            let total_score = 1000 + damage + speed - time;
+            if total_score > profile.high_score{
+                profile.high_score = total_score;
+            }
+            storage.players.insert(username_hash, profile);
+            log(FinishScoreEvent{username_hash: username_hash, damage: damage, result_time_in_seconds: time });
+
+        } else {
+            log(RacingScoreEvent{username_hash: username_hash, score: new_score });
+        }
+    }
+    #[storage(write)]
+    fn hash_and_submit_score(username: String, distance: u64, damage: u64, time: u64, speed: u64, status: u64) 
+    {
+        let username_hash = sha256(username);
+
         let mut profile = storage.players.get(username_hash).try_read().unwrap();
 
         let new_score = Score {
