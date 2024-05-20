@@ -76,7 +76,7 @@ async fn new_player(instance: &RaceBoard<WalletUnlocked>, username: String, emai
         }
     }
 }
-async fn new_player_score(instance: &RaceBoard<WalletUnlocked>, username: String) {
+async fn new_player_score(instance: &RaceBoard<WalletUnlocked>, username: String, score_type: u64) {
 
     // hash sha256 username
     let mut hasher_username = Sha256::new();
@@ -86,12 +86,12 @@ async fn new_player_score(instance: &RaceBoard<WalletUnlocked>, username: String
 
 
     let score_created = instance.methods()
-    .submit_score(Bits256(arg_username), 1, 2, 3, 4, 1)
+    .submit_score(Bits256(arg_username), 10, 20, 33, 4, score_type)
     .call().await;
     
     match score_created {
         Ok(_) => {
-            println!("score_created: {:?}", score_created.unwrap().value); 
+            //println!("score_created: {:?}", score_created.unwrap().value); 
             //format!("{:?}", score_created.unwrap().value)
         }
         Err(error) => {
@@ -112,21 +112,24 @@ async fn get_a_player(instance: &RaceBoard<WalletUnlocked>, username: String) {
         Err(_) => { println!("get_a_player error {:?} \n", response.err()); }
     }
 }
-async fn get_a_username(instance: &RaceBoard<WalletUnlocked>, index: u64) {
+async fn get_a_username(instance: &RaceBoard<WalletUnlocked>, index: u64) -> String{
     let response = instance.methods().username(index.clone()).call().await;
     match response {
-        Ok(_) => { println!("{} {} {:?} \n", "player username vector_index:", index, response.unwrap().value); }
-        Err(_) => { println!("{:?} \n", response.err()); }
+        Ok(_) => { /*println!("{} {} {:?} \n", "player username vector_index:", index, response.unwrap().value);*/ 
+                response.unwrap().value
+                 }
+        Err(_) => { /*println!("{:?} \n", response.err());*/ "error".to_string() }
     }
 }
 
 
-async fn usernames_length(instance: &RaceBoard<WalletUnlocked>) {
+async fn usernames_length(instance: &RaceBoard<WalletUnlocked>) -> u64 {
     
     let response = instance.methods().total_players().call().await;
+    //let meme = response.clone();
     match response {
-        Ok(_) => { println!("{}  {:?} \n", "usernames_length", response.unwrap().value); }
-        Err(_) => { println!("usernames_length Error {:?} \n", response.err()); }
+        Ok(_) => { /*println!("{}  {:?} \n", "usernames_length", response.unwrap().value);*/ response.unwrap().value }
+        Err(_) => { println!("usernames_length Error {:?} \n", response.err());  0}
     }
 }
 async fn list_player_scores(instance: &RaceBoard<WalletUnlocked>, username: String) {
@@ -158,57 +161,63 @@ async fn players_can_register() {
     let usr4 = ("tine".to_string(), "tine@mail.com".to_string());
     let usr5 = ("nina".to_string(), "nina@mail.com".to_string());
     
-    usernames_length(&instance).await;
+    assert!(usernames_length(&instance).await == 0, "Usernames length should be 0");
     let first_user = new_player(&instance, usr1.0.clone(), usr1.1.clone()).await;
     assert!(first_user.contains("vector_index: 0,"), "vector_index should be 0");
     
-    let second_user = new_player(&instance, usr2.0, usr2.1).await;
+    let second_user = new_player(&instance, usr2.0.clone(), usr2.1).await;
     assert!(second_user.contains("vector_index: 1,"), "vector_index should be 1");
-    usernames_length(&instance).await;
+    assert!(usernames_length(&instance).await == 2, "Usernames length should be 2");
+
     let existing_user = new_player(&instance, usr1.0.clone(), usr1.1).await;
     assert!(existing_user.contains("UsernameExists"), "UsernameExists was not thrown!");
-            
+    assert!(usernames_length(&instance).await == 2, "Usernames length should be 2");
+
+
     let third_user = new_player(&instance, usr3.0.clone(), usr3.1).await;
     assert!(third_user.contains("vector_index: 2,"), "vector_index should be 1");
-    usernames_length(&instance).await;
-    
-    //get_players(&instance).await;
-    //get_usernames(&instance).await;
-    
+    assert!(usernames_length(&instance).await == 3, "Usernames length should be 3");
+   
     get_a_player(&instance, usr3.0.clone()).await;
-    get_a_username(&instance, 2).await;
-    usernames_length(&instance).await;
-   // list_usernames(&instance).await;
-   //list_players(&instance).await;
-   //list_player_scores(&instance, usr3.0.clone()).await;
-   //usernames_length(&instance).await;
-   new_player_score(&instance, usr1.0).await;
-   new_player_score(&instance, usr3.0.clone()).await;
-   new_player_score(&instance, usr3.0.clone()).await;
-   //list_player_scores(&instance, usr3.0).await;
+    assert!(get_a_username(&instance, 2).await == usr3.0.clone(), "Wrong username at usernames index 2");
+    assert!(usernames_length(&instance).await == 3, "Usernames length should be 3");
+   
 
-   new_player(&instance, usr4.0.clone(), usr4.1).await;
-   get_a_player(&instance, usr4.0.clone()).await;
-   get_a_player(&instance, usr3.0.clone()).await;
-    get_a_username(&instance, 3).await;
-    get_a_username(&instance, 0).await;
-    get_a_username(&instance, 1).await;
-    get_a_username(&instance, 2).await;
-    get_a_username(&instance, 4).await;
+    new_player_score(&instance, usr1.0.clone(), 1).await;
+    new_player_score(&instance, usr3.0.clone(), 1).await;
+    new_player_score(&instance, usr3.0.clone(), 1).await;
 
-   new_player(&instance, usr5.0.clone(), usr5.1).await;
+    list_player_scores(&instance, usr1.0.clone()).await;
+    list_player_scores(&instance, usr3.0.clone()).await;
+
+    new_player(&instance, usr4.0.clone(), usr4.1).await;
+    assert!(usernames_length(&instance).await == 4, "Usernames length should be 4");
+    get_a_player(&instance, usr4.0.clone()).await;
+    get_a_player(&instance, usr3.0.clone()).await;
+
+    assert!(get_a_username(&instance, 3).await == usr4.0.clone(), "Wrong username at usernames index 3");
+    assert!(get_a_username(&instance, 0).await == usr1.0.clone(), "Wrong username at usernames index 0");
+    assert!(get_a_username(&instance, 1).await == usr2.0.clone(), "Wrong username at usernames index 1");
+    assert!(get_a_username(&instance, 2).await == usr3.0.clone(), "Wrong username at usernames index 2");
+    assert!(get_a_username(&instance, 4).await == "error".to_string(), "Expected IndexIsOverMax error for usernames index");
+
+
+    new_player(&instance, usr5.0.clone(), usr5.1).await;
+    assert!(usernames_length(&instance).await == 5, "Usernames length should be 5");
     get_a_player(&instance, usr5.0.clone()).await;
-    get_a_username(&instance, 4).await;
-    get_a_username(&instance, 0).await;
-    get_a_username(&instance, 1).await;
-    get_a_username(&instance, 2).await;
-    get_a_username(&instance, 3).await;
+
+    assert!(get_a_username(&instance, 4).await == usr5.0.clone(), "Wrong username at usernames index 4");
+    assert!(get_a_username(&instance, 0).await == usr1.0.clone(), "Wrong username at usernames index 0");
+    assert!(get_a_username(&instance, 1).await == usr2.0.clone(), "Wrong username at usernames index 1");
+    assert!(get_a_username(&instance, 2).await == usr3.0.clone(), "Wrong username at usernames index 2");
+    assert!(get_a_username(&instance, 3).await == usr4.0.clone(), "Wrong username at usernames index 3");
 
 
-   list_players(&instance).await;
-   usernames_length(&instance).await;
-   get_a_username(&instance, 5).await;
-   get_a_username(&instance, 6).await;
+    list_players(&instance).await;
+    assert!(usernames_length(&instance).await == 5, "Usernames length should be 5");
+    assert!(get_a_username(&instance, 5).await == "error".to_string(), "Expected IndexIsOverMax error for usernames index");
+    assert!(get_a_username(&instance, 6).await == "error".to_string(), "Expected IndexIsOverMax error for usernames index");
+
    
 }
 
