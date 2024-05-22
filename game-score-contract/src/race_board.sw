@@ -42,10 +42,10 @@ abi RaceBoard {
     #[storage(read)] fn username(vec_index: u64) -> String;
     #[storage(read)] fn scores(username_hash: b256) -> Vec<Score>;
     #[storage(read)] fn player(username_hash: b256) -> Option<PlayerProfile>;
-    #[storage(write)] fn submit_score(username_hash: b256, distance: u64, damage: u64, time: u64, speed: u64, status: u64);
+    #[storage(write)] fn submit_score(username_hash: b256, distance: u64, damage: u64, time: u64, speed: u64, status: u64) -> u64;
     #[storage(read, write)] fn register(username: String, username_hash: b256, username_email_hash: b256) -> PlayerProfile;
     #[storage(read, write)] fn hash_and_register(username: String, username_email_hash: b256) -> PlayerProfile;
-    #[storage(write)]fn hash_and_submit_score(username: String, distance: u64, damage: u64, time: u64, speed: u64, status: u64);
+    #[storage(write)]fn hash_and_submit_score(username: String, distance: u64, damage: u64, time: u64, speed: u64, status: u64) -> u64;
 }
 
 storage {
@@ -153,7 +153,8 @@ impl RaceBoard for Contract {
     }
 
     #[storage(write)]
-    fn submit_score(username_hash: b256, distance: u64, damage: u64, time: u64, speed: u64, status: u64) 
+    fn submit_score(username_hash: b256, distance: u64, damage: u64, time: u64, speed: u64, status: u64)
+    -> u64 
     {
         
         // require(
@@ -184,9 +185,12 @@ impl RaceBoard for Contract {
         } else {
             log(RacingScoreEvent{username_hash: username_hash, score: new_score });
         }
+        profile.high_score
     }
+
     #[storage(write)]
-    fn hash_and_submit_score(username: String, distance: u64, damage: u64, time: u64, speed: u64, status: u64) 
+    fn hash_and_submit_score(username: String, distance: u64, damage: u64, time: u64, speed: u64, status: u64)
+    -> u64 
     {
         let username_hash = sha256(username);
 
@@ -213,6 +217,7 @@ impl RaceBoard for Contract {
         } else {
             log(RacingScoreEvent{username_hash: username_hash, score: new_score });
         }
+        profile.high_score
     }
 
 }

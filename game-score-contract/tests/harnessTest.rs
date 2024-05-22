@@ -91,7 +91,7 @@ async fn new_player_score(instance: &RaceBoard<WalletUnlocked>, username: String
     
     match score_created {
         Ok(_) => {
-            //println!("score_created: {:?}", score_created.unwrap().value); 
+            println!("score_created ------------: {:?}", score_created.unwrap().value); 
             //format!("{:?}", score_created.unwrap().value)
         }
         Err(error) => {
