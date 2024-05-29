@@ -53,7 +53,7 @@ async fn new_player(instance: &RaceBoard<WalletUnlocked>, username: String, emai
     // hash sha256 username
     let mut hasher_username = Sha256::new();
     hasher_username.update(username.clone());
-    let arg_username: [u8; 32] = hasher_username.finalize().into();
+    let _arg_username: [u8; 32] = hasher_username.finalize().into();
 
     // hash sha256 username and email
     let mut hasher = Sha256::new();
@@ -62,8 +62,7 @@ async fn new_player(instance: &RaceBoard<WalletUnlocked>, username: String, emai
 
 
     let player_created = instance.methods()
-    .register(username, Bits256(arg_username), Bits256(arg))
-    .call().await;
+    .register(username, Bits256(arg)).call().await;
     
     match player_created {
         Ok(_) => {
@@ -76,18 +75,17 @@ async fn new_player(instance: &RaceBoard<WalletUnlocked>, username: String, emai
         }
     }
 }
-async fn new_player_score(instance: &RaceBoard<WalletUnlocked>, username: String, score_type: u64) {
+async fn new_player_score(instance: &RaceBoard<WalletUnlocked>, username: String, score_type: u64, time: u64) {
 
     // hash sha256 username
     let mut hasher_username = Sha256::new();
     hasher_username.update(username.clone());
-    let arg_username: [u8; 32] = hasher_username.finalize().into();
+    let _arg_username: [u8; 32] = hasher_username.finalize().into();
 
 
 
-    let score_created = instance.methods()
-    .submit_score(Bits256(arg_username), 10, 20, 33, 4, score_type)
-    .call().await;
+    // let score_created = instance.methods().submit_score(Bits256(arg_username), 10, time, score_type).call().await;
+    let score_created = instance.methods().submit_score(username, 10, time, score_type).call().await;
     
     match score_created {
         Ok(_) => {
@@ -183,9 +181,15 @@ async fn players_can_register() {
     assert!(usernames_length(&instance).await == 3, "Usernames length should be 3");
    
 
-    new_player_score(&instance, usr1.0.clone(), 1).await;
-    new_player_score(&instance, usr3.0.clone(), 1).await;
-    new_player_score(&instance, usr3.0.clone(), 1).await;
+    new_player_score(&instance, usr1.0.clone(), 1, 222).await;
+    new_player_score(&instance, usr3.0.clone(), 1, 453).await;
+    new_player_score(&instance, usr3.0.clone(), 1, 243).await;
+    new_player_score(&instance, "krneki".to_string(), 1, 223).await;
+    new_player_score(&instance, usr3.0.clone(), 1, 1223).await;
+    new_player_score(&instance, usr3.0.clone(), 1, 1023).await;
+    new_player_score(&instance, usr3.0.clone(), 2, 173).await;
+    new_player_score(&instance, usr3.0.clone(), 2, 2123).await;
+    new_player_score(&instance, usr3.0.clone(), 1, 23).await;
 
     list_player_scores(&instance, usr1.0.clone()).await;
     list_player_scores(&instance, usr3.0.clone()).await;

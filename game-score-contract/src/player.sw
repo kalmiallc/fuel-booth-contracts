@@ -6,11 +6,16 @@ use std::{
     storage::storage_vec::*,
     storage::storage_string::*, 
 };
+
+// pub enum ScoreType {
+//     Track: (),
+//     Finish: (),
+//     Destroy: (),
+// }
+
 pub struct Score{
     time: u64,
-    speed: u64,
-    status: u64,
-    damage: u64,
+    status: u64,  // 0 track score, 1 Finish score, 2 destroyed score
     distance: u64,
 }
 
@@ -33,7 +38,7 @@ impl PlayerProfile {
     {   
         Self { 
             high_score: 0,
-            has_email_set: true,
+            has_email_set: username_hash == username_mail_hash,
             username_hash: username_hash,
             usernames_vector_index: vector_index,
             username_and_email_hash: username_mail_hash
