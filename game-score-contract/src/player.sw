@@ -7,15 +7,10 @@ use std::{
     storage::storage_string::*, 
 };
 
-// pub enum ScoreType {
-//     Track: (),
-//     Finish: (),
-//     Destroy: (),
-// }
 
 pub struct Score{
     time: u64,
-    status: u64,  // 0 track score, 1 Finish score, 2 destroyed score
+    status: u64,  // 0 Racing , 1 Finished , 2 Destroyed
     distance: u64,
 }
 

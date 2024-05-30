@@ -22,20 +22,11 @@ use std::{
     storage::storage_string::*, 
 };
 
-pub struct RacingScoreEvent {
+pub struct ScoreEvent {
     score: Score,
     username_hash: b256
 }
 
-pub struct FinishScoreEvent {
-    username_hash: b256,
-    result_time_in_seconds: u64
-}
-
-pub struct DestroyedScoreEvent {
-    username_hash: b256,
-    distance: u64
-}
 
 abi RaceBoard {
     #[storage(read)] fn total_players() -> u64;
@@ -134,7 +125,7 @@ impl RaceBoard for Contract {
         let mut profile = storage.players.get(username_hash).try_read().unwrap();
         let new_score = Score { time: time, status: status, distance: distance };
 
-        if status == 1 {  // 1 Finish score
+        if status == 1 {  // 1 Finished score
 
             storage.player_scores.get(username_hash).push(new_score);
             let inverted_time_score = 10_000 - time;
@@ -144,7 +135,7 @@ impl RaceBoard for Contract {
                 profile.high_score = final_time_score;
                 storage.players.insert(username_hash, profile);
             }
-            log(FinishScoreEvent{ username_hash: username_hash, result_time_in_seconds: time });
+            log(ScoreEvent{ username_hash: username_hash, score: new_score });
 
         } else if status == 2 {  // 2 Destroyed score
             storage.player_scores.get(username_hash).push(new_score);
@@ -152,10 +143,10 @@ impl RaceBoard for Contract {
                 profile.high_score = distance;
                 storage.players.insert(username_hash, profile);
             }
-            log(DestroyedScoreEvent{ username_hash: username_hash, distance: distance });
+            log(ScoreEvent{ username_hash: username_hash, score: new_score });
 
-        } else { // 0 Track score
-            log(RacingScoreEvent{ username_hash: username_hash, score: new_score });
+        } else { // 0 Racing score
+            log(ScoreEvent{ username_hash: username_hash, score: new_score });
         }
         profile.high_score
     }
