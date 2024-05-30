@@ -124,9 +124,9 @@ impl RaceBoard for Contract {
         
         let mut profile = storage.players.get(username_hash).try_read().unwrap();
         let new_score = Score { time: time, status: status, distance: distance };
-
+        log(ScoreEvent{ username_hash: username_hash, score: new_score });
+        
         if status == 1 {  // 1 Finished score
-
             storage.player_scores.get(username_hash).push(new_score);
             let inverted_time_score = 10_000 - time;
             let final_time_score = 10_000 + inverted_time_score;
@@ -135,18 +135,13 @@ impl RaceBoard for Contract {
                 profile.high_score = final_time_score;
                 storage.players.insert(username_hash, profile);
             }
-            log(ScoreEvent{ username_hash: username_hash, score: new_score });
-
+            
         } else if status == 2 {  // 2 Destroyed score
             storage.player_scores.get(username_hash).push(new_score);
             if distance > profile.high_score{
                 profile.high_score = distance;
                 storage.players.insert(username_hash, profile);
             }
-            log(ScoreEvent{ username_hash: username_hash, score: new_score });
-
-        } else { // 0 Racing score
-            log(ScoreEvent{ username_hash: username_hash, score: new_score });
         }
         profile.high_score
     }
