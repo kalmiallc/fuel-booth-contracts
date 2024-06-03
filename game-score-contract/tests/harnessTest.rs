@@ -75,7 +75,7 @@ async fn new_player(instance: &RaceBoard<WalletUnlocked>, username: String, emai
         }
     }
 }
-async fn new_player_score(instance: &RaceBoard<WalletUnlocked>, username: String, score_type: u64, time: u64) {
+async fn new_player_score(instance: &RaceBoard<WalletUnlocked>, username: String, score_type: u64, time: u64) -> String{
 
     // hash sha256 username
     let mut hasher_username = Sha256::new();
@@ -89,12 +89,13 @@ async fn new_player_score(instance: &RaceBoard<WalletUnlocked>, username: String
     
     match score_created {
         Ok(_) => {
-            println!("score_created ------------: {:?}", score_created.unwrap().value); 
-            //format!("{:?}", score_created.unwrap().value)
+            //println!("score_created ------------: {:?}", score_created.unwrap().value); 
+            //score_created.unwrap().value.to_string()
+            format!("{:?}", score_created.unwrap().value)
         }
         Err(error) => {
-            println!("Error new_player_score: {:?}", error); 
-            //error.to_string()
+            //println!("Error new_player_score: {:?}", error); 
+            error.to_string()
         }
     }
 }
@@ -181,15 +182,27 @@ async fn players_can_register() {
     assert!(usernames_length(&instance).await == 3, "Usernames length should be 3");
    
 
-    new_player_score(&instance, usr1.0.clone(), 1, 222).await;
-    new_player_score(&instance, usr3.0.clone(), 1, 453).await;
-    new_player_score(&instance, usr3.0.clone(), 1, 243).await;
-    new_player_score(&instance, "krneki".to_string(), 1, 223).await;
-    new_player_score(&instance, usr3.0.clone(), 1, 1223).await;
-    new_player_score(&instance, usr3.0.clone(), 1, 1023).await;
-    new_player_score(&instance, usr3.0.clone(), 2, 173).await;
-    new_player_score(&instance, usr3.0.clone(), 2, 2123).await;
-    new_player_score(&instance, usr3.0.clone(), 1, 23).await;
+
+
+    let new_score_0 = new_player_score(&instance, usr1.0.clone(), 1, 222).await;
+    assert!(new_score_0.contains("19778"), "high score should be 19778");
+    let new_score_1 = new_player_score(&instance, usr3.0.clone(), 1, 453).await;
+    assert!(new_score_1.contains("19547"), "high score should be 19547");
+    let new_score_2 = new_player_score(&instance, usr3.0.clone(), 1, 243).await;
+    assert!(new_score_2.contains("19757"), "high score should be 19757");
+    let new_score_3 = new_player_score(&instance, "krneki".to_string(), 1, 223).await;
+    assert!(new_score_3.contains("UsernameDoesNotExists"), "high score should be UsernameDoesNotExists");
+    let new_score_4 = new_player_score(&instance, usr3.0.clone(), 1, 1223).await;
+    assert!(new_score_4.contains("19757"), "high score should be 19757");
+    let new_score_5 = new_player_score(&instance, usr3.0.clone(), 1, 1023).await;
+    assert!(new_score_5.contains("19757"), "high score should be 19757");
+    let new_score_6 = new_player_score(&instance, usr3.0.clone(), 2, 173).await;
+    assert!(new_score_6.contains("19757"), "high score should be 19757");
+    let new_score_7 = new_player_score(&instance, usr3.0.clone(), 2, 2123).await;
+    assert!(new_score_7.contains("19757"), "high score should be 19757");
+    let new_score_8 = new_player_score(&instance, usr3.0.clone(), 1, 23).await;
+    assert!(new_score_8.contains("19977"), "high score should be 19977");
+    
 
     list_player_scores(&instance, usr1.0.clone()).await;
     list_player_scores(&instance, usr3.0.clone()).await;
