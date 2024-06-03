@@ -1,16 +1,15 @@
-// Declare a module named 'library'
 library;
 
-// Define a struct 'Score' to represent a player's score and status in a game
+// 'Score' to represent a player's score and status in a game
 pub struct Score {
-    // The time taken by the player, measured in some unit (e.g., milliseconds)
+    // The time taken by the player, measured in seconds
     time: u64,
     
     // The status of the player:
     // 0 - Racing, 1 - Finished, 2 - Destroyed
     status: u64,
     
-    // The distance covered by the player, measured in some unit (e.g., meters)
+    // The distance covered by the player
     distance: u64,
 }
 

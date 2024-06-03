@@ -1,7 +1,6 @@
-// Declare a module named 'library'
 library;
 
-// Define an enum called 'SetError' to represent different types of errors that can occur
+// 'SetError' to represent different types of errors that can occur
 pub enum SetError {
     // Error indicating that a value has already been set
     ValueAlreadySet: (),
@@ -13,7 +12,7 @@ pub enum SetError {
     UsernameAlreadyUsedEmail: (),
 }
 
-// Define another enum called 'GetError' to represent errors that can occur during retrieval
+// 'GetError' to represent errors that can occur during retrieval
 pub enum GetError {
     // Error indicating that the username does not exist
     UsernameDoesNotExists: (),

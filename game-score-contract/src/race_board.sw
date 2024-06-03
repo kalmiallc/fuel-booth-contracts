@@ -1,4 +1,3 @@
-// Declare a module for the contract
 contract;
 
 /**
@@ -13,7 +12,7 @@ use player::PlayerProfile;
 use player::Score;
 use errors::{SetError, GetError};
 
-// Import necessary standard library components for hashing, logging, strings, and storage
+// Standard library components for hashing, logging, strings, and storage
 use std::{
     hash::*, 
     logging::log,
@@ -22,13 +21,13 @@ use std::{
     storage::storage_string::*, 
 };
 
-// Define a struct to represent a score event
+// Struct to represent a score event
 pub struct ScoreEvent {
     score: Score,        // The score details
     username_hash: b256  // The hash of the username associated with this score
 }
 
-// Define the ABI (Application Binary Interface) for the RaceBoard contract
+// The ABI (Application Binary Interface) for the RaceBoard contract
 abi RaceBoard {
     // Read-only storage access functions
     #[storage(read)] fn players() -> Vec<PlayerProfile>;  // Retrieve all player profiles
@@ -42,7 +41,7 @@ abi RaceBoard {
     #[storage(read, write)] fn register(username: String, username_email_hash: b256) -> PlayerProfile;  // Register a new player profile
 }
 
-// Define the storage structure for the contract
+// Storage structure for the contract
 storage {
     counter: u64 = 0,  // A counter for unique user IDs
     usernames: StorageMap<u64, StorageString> = StorageMap {},  // Map of user IDs to usernames
@@ -50,10 +49,9 @@ storage {
     player_scores: StorageMap<b256, StorageVec<Score>> = StorageMap {},  // Map of username hashes to vectors of scores
 }
 
-// Implement the RaceBoard ABI for the contract
 impl RaceBoard for Contract {
         
-    // Function to retrieve all player profiles
+    // Retrieve all player profiles
     #[storage(read)] 
     fn players() -> Vec<PlayerProfile>
     {   
@@ -71,7 +69,7 @@ impl RaceBoard for Contract {
     #[storage(read)] 
     fn total_players() -> u64 {storage.counter.try_read().unwrap()}
 
-    // Function to retrieve scores for a given username hash
+    // Retrieve scores for a given username hash
     #[storage(read)] 
     fn scores(username_hash: b256) -> Vec<Score>
     {
@@ -89,14 +87,14 @@ impl RaceBoard for Contract {
         vector_profile_scores
     }
     
-    // Function to retrieve a player profile by username hash
+    // Retrieve a player profile by username hash
     #[storage(read)] 
     fn player(username_hash: b256) -> Option<PlayerProfile>
     {
         storage.players.get(username_hash).try_read()  // Return player profile if exists
     }
   
-    // Function to retrieve a username by its storage vector index
+    // Retrieve a username by its storage vector index
     #[storage(read)] 
     fn username(vector_index: u64) -> String
     {
@@ -105,7 +103,7 @@ impl RaceBoard for Contract {
         storage.usernames.get(vector_index).read_slice().unwrap()  // Return the username
     }
 
-    // Function to register a new player profile
+    // Register a new player profile
     #[storage(read, write)]
     fn register(username: String, username_email_hash: b256) -> PlayerProfile
     {   
@@ -126,7 +124,7 @@ impl RaceBoard for Contract {
         new_player  // Return the new player profile
     }
 
-    // Function to submit a new score for a player
+    // Submit a new score for a player
     #[storage(write)]
     fn submit_score(username: String, distance: u64, time: u64, status: u64) -> u64 
     {    
