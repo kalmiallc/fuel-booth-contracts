@@ -1,13 +1,13 @@
 [package]
-name = "game-score-contract"
-description = "Testing the ScoreBoard Sway contract on Fuel chain, with TypeScript"
+name = "game-score-contracts"
+description = "A cargo-generate template for Rust + Sway integration testing."
 version = "0.1.0"
 edition = "2021"
-authors = ["Kalmia"]
+authors = ["primoz <primoz.hrastar@gmail.com>"]
 license = "Apache-2.0"
 
 [dev-dependencies]
-fuels = { version = "0.54.0", features = ["fuel-core-lib"] }
+fuels = { version = "0.62.0", features = ["fuel-core-lib"] }
 tokio = { version = "1.12", features = ["rt", "macros"] }
 
 [[test]]
