@@ -37,7 +37,7 @@ pub struct Score {
 // Define a struct 'PlayerProfile' to store information about a player's profile
 pub struct PlayerProfile {
     // The highest score achieved by the player
-    high_score: u64,
+    high_score: u256,
     
     // A hash of the player's username for identifying and comparing user info in storage
     username_hash: b256,
@@ -88,7 +88,7 @@ abi RaceBoard {
     #[storage(read)] fn player(username_hash: b256) -> Option<PlayerProfile>;  // Retrieve a player profile by username hash
 
     // Write and read/write storage access functions
-    #[storage(write)] fn submit_score(username: String, distance: u64, time: u64, status: u64) -> u64;  // Submit a new score for a player
+    #[storage(write)] fn submit_score(username: String, distance: u64, time: u64, status: u64) -> u256;  // Submit a new score for a player
     #[storage(read, write)] fn register(username: String, username_email_hash: b256) -> PlayerProfile;  // Register a new player profile
 }
 
@@ -177,7 +177,7 @@ impl RaceBoard for Contract {
 
     // Submit a new score for a player
     #[storage(write)]
-    fn submit_score(username: String, distance: u64, time: u64, status: u64) -> u64 
+    fn submit_score(username: String, distance: u64, time: u64, status: u64) -> u256 
     {    
         let username_hash = sha256(username);  // Calculate hash of the username
         // Ensure the player exists
@@ -190,18 +190,18 @@ impl RaceBoard for Contract {
         
         if status == 1 {  // Status 1 indicates a finished score
             storage.player_scores.get(username_hash).push(new_score);  // Add score to the player's scores
-            let inverted_time_score = 10_000 - time;  // Calculate an inverted time score
-            let final_time_score = 10_000 + inverted_time_score;  // Calculate the final time score
+            let inverted_time_score = 1_000_000 - time;  // Calculate an inverted time score
+            let final_time_score = 1_000_000 + inverted_time_score;  // Calculate the final time score
             
-            if final_time_score > profile.high_score {
-                profile.high_score = final_time_score;  // Update the high score if the new score is higher
+            if final_time_score.as_u256() > profile.high_score {
+                profile.high_score = final_time_score.as_u256();  // Update the high score if the new score is higher
                 storage.players.insert(username_hash, profile);  // Save the updated profile
             }
             
         } else if status == 2 {  // Status 2 indicates a destroyed score
             storage.player_scores.get(username_hash).push(new_score);  // Add score to the player's scores
-            if distance > profile.high_score {
-                profile.high_score = distance;  // Update the high score if the new distance is greater
+            if distance.as_u256() > profile.high_score {
+                profile.high_score = distance.as_u256();  // Update the high score if the new distance is greater
                 storage.players.insert(username_hash, profile);  // Save the updated profile
             }
         }

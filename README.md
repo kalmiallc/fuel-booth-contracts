@@ -42,5 +42,5 @@ v2: Full all games for user: race_board.sw & ...
 
 refresh abis in /score-fe>```npx fuels build```
 start app /score-fe>```npm start```
-``` ```
-``` ```
+```forc deploy --target devnet```
+```https://faucet-devnet.fuel.network/```
