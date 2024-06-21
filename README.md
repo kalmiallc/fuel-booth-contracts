@@ -41,5 +41,6 @@ v2: Full all games for user: race_board.sw & ...
 
 #### deploy:
 
-- first get some free gas money [Faucet test tokens](https://faucet-beta-5.fuel.network/)
+- first get some free gas money [Faucet test tokens](https://faucet-testnet.fuel.network/)
+- build contracts via `forc build`
 - deploy using `forc deploy --testnet` and follow prompt
